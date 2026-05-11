@@ -253,9 +253,9 @@
       .app-header, .form-panel, .app-footer { display: none !important; }
       .layout { display: block; height: auto; }
       .preview-panel { background: #fff; padding: 0; display: block; }
+      .preview-frame { overflow: visible; }
+      .preview-inner { transform: none !important; width: auto !important; height: auto !important; }
       .invoice-page {
-        transform: none !important;
-        margin-bottom: 0 !important;
         box-shadow: none;
         border-radius: 0;
         width: auto;
@@ -268,7 +268,24 @@
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; height: auto; }
       .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
-      .preview-panel { display: none; }
+      .preview-panel { padding: 8px; display: block; }
+      .preview-frame {
+        width: 100%;
+        aspect-ratio: 210 / 297;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      .preview-inner {
+        width: 794px;
+        height: 1123px;
+        transform: scale(calc((100vw - 16px) / 794));
+        transform-origin: top left;
+      }
+      .invoice-page {
+        border-radius: 0;
+        box-shadow: none;
+      }
     }
   </style>
 </head>
@@ -318,7 +335,11 @@
   </aside>
 
   <main class="preview-panel" id="preview-panel">
-    <div class="invoice-page" id="invoice"></div>
+    <div class="preview-frame">
+      <div class="preview-inner" id="preview-inner">
+        <div class="invoice-page" id="invoice"></div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -426,10 +447,9 @@ async function printInvoice() {
     const el = $('invoice');
     const num = $('f-number').value || 'draft';
 
-    const prevZoom = el.style.zoom;
-    const prevShadow = el.style.boxShadow;
-    const prevRadius = el.style.borderRadius;
-    el.style.zoom = '1';
+    const inner = $('preview-inner');
+    const prevTransform = inner ? inner.style.transform : '';
+    if (inner) inner.style.transform = 'none';
     el.style.boxShadow = 'none';
     el.style.borderRadius = '0';
 
@@ -442,9 +462,9 @@ async function printInvoice() {
       pagebreak:    { mode: 'avoid-all' },
     }).from(el).save();
 
-    el.style.zoom = prevZoom;
-    el.style.boxShadow = prevShadow;
-    el.style.borderRadius = prevRadius;
+    if (inner) inner.style.transform = prevTransform;
+    el.style.boxShadow = '';
+    el.style.borderRadius = '';
   } catch (err) {
     console.error('PDF generation failed:', err);
     alert('PDF generation failed: ' + err.message);
@@ -454,21 +474,11 @@ async function printInvoice() {
   }
 }
 
-function updateMobileScale() {
-  const inv = $('invoice');
-  if (!inv) return;
-  const scale = Math.min(1, (window.innerWidth - 16) / 794);
-  document.documentElement.style.setProperty('--mobile-scale', scale);
-  document.documentElement.style.setProperty('--inv-h', inv.offsetHeight + 'px');
-}
-
 document.querySelectorAll('.form-panel input, .form-panel textarea').forEach(el => {
-  el.addEventListener('input', () => { render(); updateMobileScale(); });
+  el.addEventListener('input', render);
 });
 
 render();
-updateMobileScale();
-window.addEventListener('resize', updateMobileScale);
 </script>
 </body>
 </html>
