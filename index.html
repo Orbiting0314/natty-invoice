@@ -466,19 +466,19 @@ async function printInvoice() {
     });
 
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-    const pdfW = pdf.internal.pageSize.getWidth();
-    const pdfH = pdf.internal.pageSize.getHeight();
-    const imgW = pdfW;
+    const JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+    const pdf = new JsPDF('p', 'mm', 'a4');
+    const margin = 10;
+    const pdfW = pdf.internal.pageSize.getWidth() - margin * 2;
     const imgH = (canvas.height * pdfW) / canvas.width;
 
-    pdf.addImage(imgData, 'PNG', 0, 0, imgW, Math.min(imgH, pdfH));
+    pdf.addImage(imgData, 'PNG', margin, margin, pdfW, imgH);
 
     const num = $('f-number').value || 'draft';
     pdf.save(`invoice-${num}.pdf`);
   } catch (err) {
-    console.error(err);
-    window.print();
+    console.error('PDF generation failed:', err);
+    alert('PDF generation failed. Please try again.');
   } finally {
     btn.textContent = orig;
     btn.disabled = false;
