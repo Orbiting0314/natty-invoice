@@ -254,7 +254,8 @@
       .layout { display: block; height: auto; }
       .preview-panel { background: #fff; padding: 0; display: block; }
       .invoice-page {
-        zoom: 1 !important;
+        transform: none !important;
+        margin-bottom: 0 !important;
         box-shadow: none;
         border-radius: 0;
         width: auto;
@@ -269,11 +270,14 @@
       .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
       .preview-panel {
         padding: 8px;
-        overflow: hidden;
-        display: block;
+        display: flex;
+        justify-content: center;
+        overflow: visible;
       }
       .invoice-page {
-        zoom: calc((100vw - 16px) / 794);
+        transform: scale(var(--mobile-scale));
+        transform-origin: top center;
+        margin-bottom: calc((var(--mobile-scale) - 1) * var(--inv-h, 1000px));
       }
     }
   </style>
@@ -460,11 +464,21 @@ async function printInvoice() {
   }
 }
 
+function updateMobileScale() {
+  const inv = $('invoice');
+  if (!inv) return;
+  const scale = Math.min(1, (window.innerWidth - 16) / 794);
+  document.documentElement.style.setProperty('--mobile-scale', scale);
+  document.documentElement.style.setProperty('--inv-h', inv.offsetHeight + 'px');
+}
+
 document.querySelectorAll('.form-panel input, .form-panel textarea').forEach(el => {
-  el.addEventListener('input', render);
+  el.addEventListener('input', () => { render(); updateMobileScale(); });
 });
 
 render();
+updateMobileScale();
+window.addEventListener('resize', updateMobileScale);
 </script>
 </body>
 </html>
