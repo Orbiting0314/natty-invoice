@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Natty On — Invoice Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: #fff;
+      --border: #e0e0e0;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text: #1a1a1a;
+      --text-muted: #666;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Editor layout ── */
+    .app-header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .app-header h1 { font-size: 1.15rem; font-weight: 700; }
+    .app-header .actions { display: flex; gap: 0.5rem; }
+    .btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:hover { border-color: #bbb; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 0;
+      height: calc(100vh - 57px);
+    }
+
+    /* ── Form panel ── */
+    .form-panel {
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+    .form-panel h2 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+    .field { margin-bottom: 1rem; }
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--text-muted);
+    }
+    .field input, .field textarea {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .field input:focus, .field textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .field textarea { resize: vertical; min-height: 60px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* ── Preview panel ── */
+    .preview-panel {
+      background: #e8e8ec;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    /* ── Invoice (shared print + screen) ── */
+    .invoice-page {
+      background: #fff;
+      width: 210mm;
+      min-height: 297mm;
+      padding: 18mm 22mm;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+      font-family: 'Inter', 'Noto Sans TC', 'PingFang HK', sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
+      color: #111;
+    }
+    .invoice-page h1.inv-title {
+      font-size: 22pt;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin: 0 0 1.25rem;
+    }
+    .inv-meta { margin-bottom: 1.25rem; }
+    .inv-meta div { margin-bottom: 0.35rem; }
+    .inv-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 0.5rem;
+    }
+    .inv-table th {
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #222;
+      padding: 0.5rem 0;
+    }
+    .inv-table th.amt { text-align: right; width: 28%; }
+    .inv-table td {
+      vertical-align: top;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .inv-table td.amt {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .desc-block .label { font-weight: 600; margin-top: 0.35rem; }
+    .desc-block .label:first-child { margin-top: 0; }
+    .schedule { margin: 0.25rem 0 0 1.1rem; padding: 0; }
+    .schedule li { margin: 0.15rem 0; }
+    .total-row td {
+      border-bottom: none;
+      border-top: 2px solid #222;
+      font-weight: 700;
+      padding-top: 0.75rem;
+    }
+    .inv-terms {
+      margin-top: 1.75rem;
+      font-size: 10pt;
+      line-height: 1.5;
+    }
+    .inv-terms h2 { font-size: 11pt; margin: 0 0 0.5rem; }
+    .inv-terms p { margin: 0 0 0.45rem; }
+    .inv-footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 10pt;
+      line-height: 1.55;
+    }
+    .inv-footer .brand { font-weight: 700; font-size: 11pt; margin-bottom: 0.25rem; }
+    .inv-footer a { color: #111; text-decoration: none; }
+
+    /* ── Print: hide editor, show only invoice ── */
+    @media print {
+      body { background: #fff; }
+      .app-header, .form-panel { display: none !important; }
+      .layout { display: block; }
+      .preview-panel {
+        background: #fff;
+        padding: 0;
+        display: block;
+      }
+      .invoice-page {
+        box-shadow: none;
+        width: auto;
+        min-height: auto;
+        padding: 0;
+      }
+      @page {
+        size: A4;
+        margin: 18mm 22mm;
+      }
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
+      .preview-panel { padding: 1rem; }
+      .invoice-page { width: 100%; min-height: auto; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Natty On — Invoice Generator</h1>
+  <div class="actions">
+    <button class="btn" onclick="resetForm()">Reset</button>
+    <button class="btn btn-primary" onclick="printInvoice()">Download PDF</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="form-panel">
+    <h2>Invoice Details</h2>
+    <div class="field">
+      <label>Student Name</label>
+      <input id="f-student" value="Mathew (S.1)" />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Invoice Number</label>
+        <input id="f-number" value="1001306" />
+      </div>
+      <div class="field">
+        <label>Date of Issue</label>
+        <input id="f-date" value="16/4/2026" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Course Title</label>
+      <input id="f-course" value="1v1 Zoom Secondary School (DSE) English Writing Course" />
+    </div>
+    <div class="field">
+      <label>Schedule (one line per row)</label>
+      <textarea id="f-schedule">24/4，1/5，8/5，15/5 (合共4節課，每節1.5小時)</textarea>
+    </div>
+    <div class="field">
+      <label>Tutor</label>
+      <input id="f-tutor" value="Ms. Natty On" />
+    </div>
+    <div class="field">
+      <label>Amount (HKD)</label>
+      <input id="f-amount" type="number" value="1920" />
+    </div>
+  </aside>
+
+  <main class="preview-panel">
+    <div class="invoice-page" id="invoice">
+      <!-- filled by JS -->
+    </div>
+  </main>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtHKD = n => '$' + Number(n).toLocaleString('en-HK');
+
+function render() {
+  const student = $('f-student').value;
+  const num = $('f-number').value;
+  const date = $('f-date').value;
+  const course = $('f-course').value;
+  const schedRaw = $('f-schedule').value;
+  const tutor = $('f-tutor').value;
+  const amount = $('f-amount').value || '0';
+
+  const schedLines = schedRaw.split('\n').filter(l => l.trim());
+  const schedHTML = schedLines.length
+    ? '<ul class="schedule">' + schedLines.map(l => `<li>${esc(l)}</li>`).join('') + '</ul>'
+    : '';
+
+  $('invoice').innerHTML = `
+    <h1 class="inv-title">Invoice</h1>
+    <div class="inv-meta">
+      <div><strong>Student Name:</strong> ${esc(student)}</div>
+      <div><strong>Invoice Number:</strong> ${esc(num)}</div>
+      <div><strong>Date of issue:</strong> ${esc(date)}</div>
+    </div>
+    <table class="inv-table">
+      <thead><tr><th>Description</th><th class="amt">Amount (HKD)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="desc-block">
+              <div>${esc(course)}</div>
+              <div class="label">Date:</div>
+              ${schedHTML}
+              <div class="label">Tutor: ${esc(tutor)}</div>
+            </div>
+          </td>
+          <td class="amt">${fmtHKD(amount)}</td>
+        </tr>
+        <tr class="total-row">
+          <td>TOTAL</td>
+          <td class="amt">${fmtHKD(amount)}</td>
+        </tr>
+      </tbody>
+    </table>
+    <section class="inv-terms">
+      <h2>Terms and Conditions:</h2>
+      <p>Please settle payment at least 7 days before your lesson.<br/>
+      Lesson rescheduling requires a minimum of 7 days' prior notice.<br/>
+      請於上課前至少7天繳交學費。調堂需提前7天通知，以便安排。</p>
+      <p>Please transfer to HSBC Ac. No.: "177-851714-833", please send the pay-in slip for our records.<br/>
+      請轉帳至滙豐銀行戶口號碼：「177-851714-833」，並請將入數紙傳送予我們以作紀錄。</p>
+      <p>Should you have any enquiries,<br/>
+      please contact us via our Official Whatsapp<br/>
+      如有任何查詢，<br/>
+      請透過我們的官方 WhatsApp 與我們聯絡。<br/>
+      (電話 Contact : +852 6828 5318)</p>
+    </section>
+    <footer class="inv-footer">
+      <div class="brand">Natty On English Academy</div>
+      <div><a href="https://nattyon.com/">https://nattyon.com/</a></div>
+      <div>實戰導向的英文教學，以最少時間，幫你打好最強基礎</div>
+    </footer>
+  `;
+}
+
+function resetForm() {
+  $('f-student').value = '';
+  $('f-number').value = '';
+  $('f-date').value = '';
+  $('f-course').value = '1v1 Zoom Secondary School (DSE) English Writing Course';
+  $('f-schedule').value = '';
+  $('f-tutor').value = 'Ms. Natty On';
+  $('f-amount').value = '';
+  render();
+}
+
+function printInvoice() {
+  window.print();
+}
+
+document.querySelectorAll('.form-panel input, .form-panel textarea').forEach(el => {
+  el.addEventListener('input', render);
+});
+
+render();
+</script>
+</body>
+</html>
