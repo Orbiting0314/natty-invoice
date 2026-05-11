@@ -353,8 +353,7 @@
   <p class="sub">Built by <a href="https://www.naton.io" target="_blank" rel="noopener noreferrer" class="glow-text-subtle">Naton Lab Limited</a></p>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -458,27 +457,17 @@ async function printInvoice() {
   btn.disabled = true;
 
   try {
-    const el = $('invoice');
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-    });
-
-    const imgData = canvas.toDataURL('image/png');
-    const JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
-    const pdf = new JsPDF('p', 'mm', 'a4');
-    const margin = 10;
-    const pdfW = pdf.internal.pageSize.getWidth() - margin * 2;
-    const imgH = (canvas.height * pdfW) / canvas.width;
-
-    pdf.addImage(imgData, 'PNG', margin, margin, pdfW, imgH);
-
     const num = $('f-number').value || 'draft';
-    pdf.save(`invoice-${num}.pdf`);
+    await html2pdf().set({
+      margin:       [10, 10, 10, 10],
+      filename:     `invoice-${num}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    }).from($('invoice')).save();
   } catch (err) {
     console.error('PDF generation failed:', err);
-    alert('PDF generation failed. Please try again.');
+    alert('PDF generation failed: ' + err.message);
   } finally {
     btn.textContent = orig;
     btn.disabled = false;
