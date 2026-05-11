@@ -17,6 +17,7 @@
       --text: #111827;
       --text-muted: #6b7280;
       --text-light: #9ca3af;
+      --inv-w: 794px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -46,7 +47,6 @@
       animation: glow-sweep 4s linear infinite;
     }
 
-    /* ── Editor layout ── */
     .app-header {
       background: var(--card);
       border-bottom: 1px solid var(--border);
@@ -86,7 +86,6 @@
       height: calc(100vh - 57px - 49px);
     }
 
-    /* ── Form panel ── */
     .form-panel {
       background: var(--card);
       border-right: 1px solid var(--border);
@@ -128,22 +127,25 @@
     .field textarea { resize: vertical; min-height: 60px; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 
-    /* ── Preview panel ── */
     .preview-panel {
       background: #f3f4f6;
       display: flex;
       align-items: flex-start;
       justify-content: center;
       padding: 2rem;
-      overflow-y: auto;
+      overflow: auto;
+    }
+
+    .preview-scaler {
+      flex-shrink: 0;
     }
 
     /* ── Invoice page ── */
     .invoice-page {
       background: #fff;
-      width: 210mm;
-      min-height: 297mm;
-      padding: 14mm 18mm;
+      width: var(--inv-w);
+      min-width: var(--inv-w);
+      padding: 53px 68px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
       border-radius: 0.5rem;
       font-family: 'Inter', 'Noto Sans TC', 'PingFang HK', sans-serif;
@@ -152,7 +154,6 @@
       color: #111;
     }
 
-    /* Header: title left, logo right */
     .inv-header {
       display: flex;
       align-items: flex-start;
@@ -169,11 +170,9 @@
     }
     .inv-logo { width: 90px; height: 90px; object-fit: contain; }
 
-    /* Meta */
     .inv-meta { margin-bottom: 0.75rem; }
     .inv-meta div { margin-bottom: 0.2rem; }
 
-    /* Table: fully bordered */
     .inv-table {
       width: 100%;
       border-collapse: collapse;
@@ -199,13 +198,9 @@
     .desc-block .label { font-weight: 600; margin-top: 0.5rem; }
     .schedule { margin: 0.25rem 0 0 1.2rem; padding: 0; list-style: disc; }
     .schedule li { margin: 0.15rem 0; }
-    .total-row td {
-      font-weight: 700;
-      text-align: right;
-    }
+    .total-row td { font-weight: 700; text-align: right; }
     .total-row td:first-child { text-align: right; padding-right: 0.6rem; }
 
-    /* Terms + QR side by side */
     .terms-qr-row {
       display: flex;
       gap: 1rem;
@@ -233,7 +228,6 @@
       object-fit: contain;
     }
 
-    /* Footer */
     .inv-footer {
       margin-top: 1.5rem;
       text-align: center;
@@ -244,7 +238,6 @@
     .inv-footer a { color: #111; }
     .inv-footer .tagline { font-style: italic; }
 
-    /* ── App footer ── */
     .app-footer {
       background: var(--card);
       border-top: 1px solid var(--border);
@@ -254,56 +247,33 @@
       bottom: 0;
       z-index: 10;
     }
-    .app-footer p {
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin: 0;
-      line-height: 1.4;
-    }
-    .app-footer .sub {
-      font-size: 0.7rem;
-      font-weight: 500;
-      margin-top: 0.15rem;
-    }
-    .app-footer a {
-      text-decoration: none;
-      transition: opacity 0.15s;
-    }
+    .app-footer p { font-size: 0.8rem; font-weight: 600; margin: 0; line-height: 1.4; }
+    .app-footer .sub { font-size: 0.7rem; font-weight: 500; margin-top: 0.15rem; }
+    .app-footer a { text-decoration: none; transition: opacity 0.15s; }
     .app-footer a:hover { opacity: 0.8; }
 
-    /* ── Print ── */
     @media print {
       body { background: #fff; }
       .app-header, .form-panel, .app-footer { display: none !important; }
       .layout { display: block; height: auto; }
       .preview-panel { background: #fff; padding: 0; display: block; }
+      .preview-scaler { transform: none !important; }
       .invoice-page {
         box-shadow: none;
         border-radius: 0;
         width: auto;
-        min-height: auto;
+        min-width: auto;
         padding: 0;
       }
       @page { size: A4; margin: 14mm 18mm; }
     }
 
-    /* ── Mobile ── */
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; height: auto; }
       .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
       .preview-panel {
-        padding: 0.75rem;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-      }
-      .preview-scaler {
-        transform-origin: top left;
-      }
-      .invoice-page {
-        width: 794px;
-        min-width: 794px;
-        min-height: auto;
+        padding: 12px;
+        overflow: hidden;
       }
     }
   </style>
@@ -323,7 +293,7 @@
     <h2>Invoice Details</h2>
     <div class="field">
       <label>Student Name</label>
-      <input id="f-student" value="Mathew (S.1)" />
+      <input id="f-student" value="🤗🤡🤺" />
     </div>
     <div class="row">
       <div class="field">
@@ -355,9 +325,7 @@
 
   <main class="preview-panel" id="preview-panel">
     <div class="preview-scaler" id="preview-scaler">
-      <div class="invoice-page" id="invoice">
-        <!-- filled by JS -->
-      </div>
+      <div class="invoice-page" id="invoice"></div>
     </div>
   </main>
 </div>
@@ -372,6 +340,7 @@
 const $ = id => document.getElementById(id);
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const fmtHKD = n => '$' + Number(n).toLocaleString('en-HK');
+const INV_W = 794;
 
 function render() {
   const student = $('f-student').value;
@@ -392,21 +361,14 @@ function render() {
       <h1>Invoice</h1>
       <img class="inv-logo" src="assets/X12.png" alt="Natty On English Academy" />
     </div>
-
     <div class="inv-meta">
       <div><strong>Student Name: ${esc(student)}</strong></div>
       <div>&nbsp;</div>
       <div><strong>Invoice Number: ${esc(num)}</strong></div>
       <div><strong>Date of issue: ${esc(date)}</strong></div>
     </div>
-
     <table class="inv-table">
-      <thead>
-        <tr>
-          <th>Description</th>
-          <th class="amt">Amount (HKD)</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Description</th><th class="amt">Amount (HKD)</th></tr></thead>
       <tbody>
         <tr>
           <td>
@@ -425,7 +387,6 @@ function render() {
         </tr>
       </tbody>
     </table>
-
     <div class="terms-qr-row">
       <section class="inv-terms">
         <h2>Terms and Conditions:</h2>
@@ -444,13 +405,13 @@ function render() {
         <img src="assets/X14.png" alt="WhatsApp QR Code" />
       </div>
     </div>
-
     <footer class="inv-footer">
       <div class="brand">Natty On English Academy</div>
       <div><a href="https://nattyon.com/"><u>https://nattyon.com/</u></a></div>
       <div class="tagline">實戰導向的英文教學，以最少時間，幫你打好最強基礎</div>
     </footer>
   `;
+  requestAnimationFrame(updateScale);
 }
 
 function resetForm() {
@@ -471,14 +432,28 @@ async function printInvoice() {
   btn.disabled = true;
 
   try {
+    const el = $('invoice');
     const num = $('f-number').value || 'draft';
+
+    // temporarily remove min-height / scale for clean capture
+    const scaler = $('preview-scaler');
+    const prevTransform = scaler.style.transform;
+    scaler.style.transform = 'none';
+    el.style.boxShadow = 'none';
+    el.style.borderRadius = '0';
+
     await html2pdf().set({
-      margin:       [10, 10, 10, 10],
+      margin:       0,
       filename:     `invoice-${num}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    }).from($('invoice')).save();
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: INV_W },
+      jsPDF:        { unit: 'px', format: [INV_W, el.scrollHeight], orientation: 'portrait', hotfixes: ['px_scaling'] },
+      pagebreak:    { mode: 'avoid-all' },
+    }).from(el).save();
+
+    scaler.style.transform = prevTransform;
+    el.style.boxShadow = '';
+    el.style.borderRadius = '';
   } catch (err) {
     console.error('PDF generation failed:', err);
     alert('PDF generation failed: ' + err.message);
@@ -488,35 +463,35 @@ async function printInvoice() {
   }
 }
 
+function updateScale() {
+  const scaler = $('preview-scaler');
+  const panel = $('preview-panel');
+  const invoice = $('invoice');
+  if (!scaler || !panel || !invoice) return;
+
+  const availW = panel.clientWidth - 48;
+  if (availW < INV_W) {
+    const scale = availW / INV_W;
+    scaler.style.transform = `scale(${scale})`;
+    scaler.style.transformOrigin = 'top left';
+    scaler.style.width = INV_W + 'px';
+    scaler.style.height = (invoice.offsetHeight) + 'px';
+    panel.style.height = (invoice.offsetHeight * scale + 24) + 'px';
+  } else {
+    scaler.style.transform = '';
+    scaler.style.transformOrigin = '';
+    scaler.style.width = '';
+    scaler.style.height = '';
+    panel.style.height = '';
+  }
+}
+
 document.querySelectorAll('.form-panel input, .form-panel textarea').forEach(el => {
   el.addEventListener('input', render);
 });
 
 render();
-
-function updateMobileScale() {
-  const scaler = $('preview-scaler');
-  const invoice = $('invoice');
-  const panel = $('preview-panel');
-  if (!scaler || !invoice || !panel) return;
-
-  if (window.innerWidth <= 900) {
-    const availW = panel.clientWidth - 24;
-    const invW = 794;
-    const scale = Math.min(1, availW / invW);
-    scaler.style.transform = `scale(${scale})`;
-    scaler.style.width = invW + 'px';
-    const invH = invoice.offsetHeight;
-    panel.style.height = (invH * scale + 24) + 'px';
-  } else {
-    scaler.style.transform = '';
-    scaler.style.width = '';
-    panel.style.height = '';
-  }
-}
-updateMobileScale();
-window.addEventListener('resize', updateMobileScale);
-new MutationObserver(updateMobileScale).observe($('invoice'), { childList: true, subtree: true });
+window.addEventListener('resize', updateScale);
 </script>
 </body>
 </html>
