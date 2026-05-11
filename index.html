@@ -58,6 +58,8 @@
       top: 0;
       z-index: 10;
     }
+    .app-header .brand-group { display: flex; align-items: center; gap: 0.5rem; }
+    .app-header .app-logo { height: 32px; width: 32px; border-radius: 50%; object-fit: cover; }
     .app-header h1 { font-size: 1.05rem; font-weight: 600; color: var(--text); }
     .app-header .actions { display: flex; gap: 0.5rem; }
     .btn {
@@ -275,12 +277,15 @@
         overflow: hidden;
         border-radius: 8px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        background: #e5e7eb;
+        display: flex;
+        justify-content: center;
       }
       .preview-inner {
         width: 794px;
         height: 1123px;
-        transform: scale(calc((100vw - 16px) / 794));
-        transform-origin: top left;
+        transform: scale(calc((100vw - 32px) / 794));
+        transform-origin: top center;
       }
       .invoice-page {
         border-radius: 0;
@@ -292,7 +297,10 @@
 <body>
 
 <header class="app-header">
-  <h1>Stay hydrated babe🖤</h1>
+  <div class="brand-group">
+    <img class="app-logo" src="assets/X12.png" alt="Natty On" />
+    <h1>Stay hydrated babe🖤</h1>
+  </div>
   <div class="actions">
     <button class="btn" onclick="resetForm()">Reset</button>
     <button class="btn btn-primary" onclick="printInvoice()">Download PDF</button>
