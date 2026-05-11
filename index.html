@@ -17,7 +17,6 @@
       --text: #111827;
       --text-muted: #6b7280;
       --text-light: #9ca3af;
-      --radius: 10px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -139,74 +138,111 @@
       overflow-y: auto;
     }
 
-    /* ── Invoice (shared print + screen) ── */
+    /* ── Invoice page ── */
     .invoice-page {
       background: #fff;
       width: 210mm;
       min-height: 297mm;
-      padding: 18mm 22mm;
+      padding: 14mm 18mm;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
       border-radius: 0.5rem;
       font-family: 'Inter', 'Noto Sans TC', 'PingFang HK', sans-serif;
-      font-size: 11pt;
+      font-size: 10.5pt;
       line-height: 1.45;
       color: #111;
     }
-    .invoice-page h1.inv-title {
+
+    /* Header: title left, logo right */
+    .inv-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .inv-header h1 {
       font-size: 22pt;
       font-weight: 700;
-      letter-spacing: 0.02em;
-      margin: 0 0 1.25rem;
+      font-style: italic;
+      text-decoration: underline;
+      margin: 0;
+      padding-top: 10px;
     }
-    .inv-meta { margin-bottom: 1.25rem; }
-    .inv-meta div { margin-bottom: 0.35rem; }
+    .inv-logo { width: 90px; height: 90px; object-fit: contain; }
+
+    /* Meta */
+    .inv-meta { margin-bottom: 0.75rem; }
+    .inv-meta div { margin-bottom: 0.2rem; }
+
+    /* Table: fully bordered */
     .inv-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 1rem 0 0.5rem;
+      margin: 0.75rem 0 0.25rem;
+    }
+    .inv-table th, .inv-table td {
+      border: 1px solid #000;
+      padding: 0.5rem 0.6rem;
+      vertical-align: top;
     }
     .inv-table th {
-      text-align: left;
-      font-weight: 600;
-      border-bottom: 2px solid #222;
-      padding: 0.5rem 0;
+      text-align: center;
+      font-weight: 700;
+      font-size: 10.5pt;
     }
-    .inv-table th.amt { text-align: right; width: 28%; }
-    .inv-table td {
-      vertical-align: top;
-      padding: 0.65rem 0;
-      border-bottom: 1px solid #ddd;
-    }
+    .inv-table th.amt { width: 25%; }
     .inv-table td.amt {
       text-align: right;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+      vertical-align: middle;
     }
-    .desc-block .label { font-weight: 600; margin-top: 0.35rem; }
-    .desc-block .label:first-child { margin-top: 0; }
-    .schedule { margin: 0.25rem 0 0 1.1rem; padding: 0; }
+    .desc-block .label { font-weight: 600; margin-top: 0.5rem; }
+    .schedule { margin: 0.25rem 0 0 1.2rem; padding: 0; list-style: disc; }
     .schedule li { margin: 0.15rem 0; }
     .total-row td {
-      border-bottom: none;
-      border-top: 2px solid #222;
       font-weight: 700;
-      padding-top: 0.75rem;
+      text-align: right;
+    }
+    .total-row td:first-child { text-align: right; padding-right: 0.6rem; }
+
+    /* Terms + QR side by side */
+    .terms-qr-row {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.25rem;
+      align-items: flex-start;
     }
     .inv-terms {
-      margin-top: 1.75rem;
-      font-size: 10pt;
+      flex: 1;
+      font-size: 9.5pt;
       line-height: 1.5;
     }
-    .inv-terms h2 { font-size: 11pt; margin: 0 0 0.5rem; }
-    .inv-terms p { margin: 0 0 0.45rem; }
+    .inv-terms h2 { font-size: 10.5pt; font-weight: 700; margin: 0 0 0.4rem; }
+    .inv-terms p { margin: 0 0 0.5rem; }
+    .inv-terms .indent { padding-left: 1.2rem; }
+    .inv-terms .dash-item { padding-left: 1.2rem; text-indent: -0.9rem; }
+    .inv-qr {
+      flex: 0 0 160px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+    }
+    .inv-qr img {
+      width: 155px;
+      height: auto;
+      object-fit: contain;
+    }
+
+    /* Footer */
     .inv-footer {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       text-align: center;
       font-size: 10pt;
       line-height: 1.55;
     }
-    .inv-footer .brand { font-weight: 700; font-size: 11pt; margin-bottom: 0.25rem; }
-    .inv-footer a { color: #111; text-decoration: none; }
+    .inv-footer .brand { font-weight: 600; font-style: italic; font-size: 11pt; margin-bottom: 0.2rem; }
+    .inv-footer a { color: #111; }
+    .inv-footer .tagline { font-style: italic; }
 
     /* ── App footer ── */
     .app-footer {
@@ -235,16 +271,12 @@
     }
     .app-footer a:hover { opacity: 0.8; }
 
-    /* ── Print: hide editor, show only invoice ── */
+    /* ── Print ── */
     @media print {
       body { background: #fff; }
       .app-header, .form-panel, .app-footer { display: none !important; }
       .layout { display: block; height: auto; }
-      .preview-panel {
-        background: #fff;
-        padding: 0;
-        display: block;
-      }
+      .preview-panel { background: #fff; padding: 0; display: block; }
       .invoice-page {
         box-shadow: none;
         border-radius: 0;
@@ -252,18 +284,12 @@
         min-height: auto;
         padding: 0;
       }
-      @page {
-        size: A4;
-        margin: 18mm 22mm;
-      }
+      @page { size: A4; margin: 14mm 18mm; }
     }
 
     /* ── Mobile ── */
     @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-        height: auto;
-      }
+      .layout { grid-template-columns: 1fr; height: auto; }
       .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
       .preview-panel { padding: 1rem; }
       .invoice-page { width: 100%; min-height: auto; padding: 1.5rem; border-radius: 0.375rem; }
@@ -347,14 +373,25 @@ function render() {
     : '';
 
   $('invoice').innerHTML = `
-    <h1 class="inv-title">Invoice</h1>
-    <div class="inv-meta">
-      <div><strong>Student Name:</strong> ${esc(student)}</div>
-      <div><strong>Invoice Number:</strong> ${esc(num)}</div>
-      <div><strong>Date of issue:</strong> ${esc(date)}</div>
+    <div class="inv-header">
+      <h1>Invoice</h1>
+      <img class="inv-logo" src="assets/X12.png" alt="Natty On English Academy" />
     </div>
+
+    <div class="inv-meta">
+      <div><strong>Student Name: ${esc(student)}</strong></div>
+      <div>&nbsp;</div>
+      <div><strong>Invoice Number: ${esc(num)}</strong></div>
+      <div><strong>Date of issue: ${esc(date)}</strong></div>
+    </div>
+
     <table class="inv-table">
-      <thead><tr><th>Description</th><th class="amt">Amount (HKD)</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th class="amt">Amount (HKD)</th>
+        </tr>
+      </thead>
       <tbody>
         <tr>
           <td>
@@ -373,23 +410,30 @@ function render() {
         </tr>
       </tbody>
     </table>
-    <section class="inv-terms">
-      <h2>Terms and Conditions:</h2>
-      <p>Please settle payment at least 7 days before your lesson.<br/>
-      Lesson rescheduling requires a minimum of 7 days' prior notice.<br/>
-      請於上課前至少7天繳交學費。調堂需提前7天通知，以便安排。</p>
-      <p>Please transfer to HSBC Ac. No.: "177-851714-833", please send the pay-in slip for our records.<br/>
-      請轉帳至滙豐銀行戶口號碼：「177-851714-833」，並請將入數紙傳送予我們以作紀錄。</p>
-      <p>Should you have any enquiries,<br/>
-      please contact us via our Official Whatsapp<br/>
-      如有任何查詢，<br/>
-      請透過我們的官方 WhatsApp 與我們聯絡。<br/>
-      (電話 Contact : +852 6828 5318)</p>
-    </section>
+
+    <div class="terms-qr-row">
+      <section class="inv-terms">
+        <h2>Terms and Conditions:</h2>
+        <p class="indent">Please settle payment at least 7 days before your lesson.<br/>
+        Lesson rescheduling requires a minimum of 7 days' prior notice.<br/>
+        請於上課前至少7天繳交學費。調堂需提前7天通知，以便安排。</p>
+        <p class="dash-item">-&nbsp; Please transfer to HSBC Ac. No.: "177-851714-833", please send the pay-in slip for our records.<br/>
+        請轉帳至滙豐銀行戶口號碼：「177-851714-833」，並請將入數紙傳送予我們以作紀錄。</p>
+        <p>Should you have any enquiries,<br/>
+        please contact us via our <strong><u>Official Whatsapp</u></strong><br/>
+        如有任何查詢，<br/>
+        請透過我們的<strong>官方 WhatsApp</strong> 與我們聯絡。<br/>
+        <strong>(電話 Contact : +852 6828 5318)</strong></p>
+      </section>
+      <div class="inv-qr">
+        <img src="assets/X14.png" alt="WhatsApp QR Code" />
+      </div>
+    </div>
+
     <footer class="inv-footer">
       <div class="brand">Natty On English Academy</div>
-      <div><a href="https://nattyon.com/">https://nattyon.com/</a></div>
-      <div>實戰導向的英文教學，以最少時間，幫你打好最強基礎</div>
+      <div><a href="https://nattyon.com/"><u>https://nattyon.com/</u></a></div>
+      <div class="tagline">實戰導向的英文教學，以最少時間，幫你打好最強基礎</div>
     </footer>
   `;
 }
