@@ -3,33 +3,55 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Natty On — Invoice Generator</title>
+  <title>Invoice Generator — Built for Natty On</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎀</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #f5f5f7;
+      --bg: #f9fafb;
       --card: #fff;
-      --border: #e0e0e0;
-      --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --text: #1a1a1a;
-      --text-muted: #666;
+      --border: #e5e7eb;
+      --accent: #ec4899;
+      --accent-hover: #db2777;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --text-light: #9ca3af;
       --radius: 10px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      font-family: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @keyframes glow-sweep {
+      0% { background-position: -200%; }
+      100% { background-position: 200%; }
+    }
+    .glow-text {
+      background: linear-gradient(90deg, #ec4899 0%, #f9a8d4 30%, #fbcfe8 50%, #f9a8d4 70%, #ec4899 100%) 0 0 / 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow-sweep 3s linear infinite;
+    }
+    .glow-text-subtle {
+      background: linear-gradient(90deg, #9ca3af 0%, #6b7280 20%, #d1d5db 50%, #6b7280 80%, #9ca3af 100%) 0 0 / 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow-sweep 4s linear infinite;
     }
 
     /* ── Editor layout ── */
     .app-header {
       background: var(--card);
       border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+      padding: 1rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -37,31 +59,32 @@
       top: 0;
       z-index: 10;
     }
-    .app-header h1 { font-size: 1.15rem; font-weight: 700; }
+    .app-header h1 { font-size: 1.05rem; font-weight: 600; color: var(--text); }
     .app-header .actions { display: flex; gap: 0.5rem; }
     .btn {
-      padding: 0.5rem 1.25rem;
-      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
       border: 1px solid var(--border);
       background: var(--card);
       font-size: 0.875rem;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.15s;
+      color: var(--text);
     }
-    .btn:hover { border-color: #bbb; }
+    .btn:hover { background: var(--bg); }
     .btn-primary {
       background: var(--accent);
       color: #fff;
       border-color: var(--accent);
     }
-    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 
     .layout {
       display: grid;
       grid-template-columns: 380px 1fr;
       gap: 0;
-      height: calc(100vh - 57px);
+      height: calc(100vh - 57px - 49px);
     }
 
     /* ── Form panel ── */
@@ -72,40 +95,43 @@
       overflow-y: auto;
     }
     .form-panel h2 {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--text-muted);
+      font-weight: 600;
       margin-bottom: 1rem;
     }
     .field { margin-bottom: 1rem; }
     .field label {
       display: block;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: 0.3rem;
       color: var(--text-muted);
     }
     .field input, .field textarea {
       width: 100%;
-      padding: 0.5rem 0.7rem;
+      padding: 0.5rem 0.75rem;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.9rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
       font-family: inherit;
-      transition: border-color 0.15s;
+      background: var(--card);
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
     .field input:focus, .field textarea:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+      box-shadow: 0 0 0 3px rgba(236,72,153,0.1);
     }
     .field textarea { resize: vertical; min-height: 60px; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 
     /* ── Preview panel ── */
     .preview-panel {
-      background: #e8e8ec;
+      background: #f3f4f6;
       display: flex;
       align-items: flex-start;
       justify-content: center;
@@ -119,7 +145,8 @@
       width: 210mm;
       min-height: 297mm;
       padding: 18mm 22mm;
-      box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+      border-radius: 0.5rem;
       font-family: 'Inter', 'Noto Sans TC', 'PingFang HK', sans-serif;
       font-size: 11pt;
       line-height: 1.45;
@@ -181,11 +208,38 @@
     .inv-footer .brand { font-weight: 700; font-size: 11pt; margin-bottom: 0.25rem; }
     .inv-footer a { color: #111; text-decoration: none; }
 
+    /* ── App footer ── */
+    .app-footer {
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      text-align: center;
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+    }
+    .app-footer p {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin: 0;
+      line-height: 1.4;
+    }
+    .app-footer .sub {
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-top: 0.15rem;
+    }
+    .app-footer a {
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .app-footer a:hover { opacity: 0.8; }
+
     /* ── Print: hide editor, show only invoice ── */
     @media print {
       body { background: #fff; }
-      .app-header, .form-panel { display: none !important; }
-      .layout { display: block; }
+      .app-header, .form-panel, .app-footer { display: none !important; }
+      .layout { display: block; height: auto; }
       .preview-panel {
         background: #fff;
         padding: 0;
@@ -193,6 +247,7 @@
       }
       .invoice-page {
         box-shadow: none;
+        border-radius: 0;
         width: auto;
         min-height: auto;
         padding: 0;
@@ -211,14 +266,14 @@
       }
       .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
       .preview-panel { padding: 1rem; }
-      .invoice-page { width: 100%; min-height: auto; padding: 1.5rem; }
+      .invoice-page { width: 100%; min-height: auto; padding: 1.5rem; border-radius: 0.375rem; }
     }
   </style>
 </head>
 <body>
 
 <header class="app-header">
-  <h1>Natty On — Invoice Generator</h1>
+  <h1>Invoice Generator</h1>
   <div class="actions">
     <button class="btn" onclick="resetForm()">Reset</button>
     <button class="btn btn-primary" onclick="printInvoice()">Download PDF</button>
@@ -266,6 +321,11 @@
     </div>
   </main>
 </div>
+
+<footer class="app-footer">
+  <p><span class="glow-text">Built for Natty On</span></p>
+  <p class="sub">Built by <a href="https://www.naton.io" target="_blank" rel="noopener noreferrer" class="glow-text-subtle">Naton Lab Limited</a></p>
+</footer>
 
 <script>
 const $ = id => document.getElementById(id);
