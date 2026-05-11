@@ -222,13 +222,13 @@
     .inv-terms .indent { padding-left: 1.2rem; }
     .inv-terms .dash-item { padding-left: 1.2rem; text-indent: -0.9rem; }
     .inv-qr {
-      flex: 0 0 160px;
+      flex: 0 0 200px;
       display: flex;
       align-items: flex-start;
       justify-content: flex-end;
     }
     .inv-qr img {
-      width: 155px;
+      width: 195px;
       height: auto;
       object-fit: contain;
     }
@@ -299,7 +299,7 @@
 <body>
 
 <header class="app-header">
-  <h1>Invoice Generator</h1>
+  <h1>Stay hydrated babe🖤</h1>
   <div class="actions">
     <button class="btn" onclick="resetForm()">Reset</button>
     <button class="btn btn-primary" onclick="printInvoice()">Download PDF</button>
@@ -353,6 +353,8 @@
   <p class="sub">Built by <a href="https://www.naton.io" target="_blank" rel="noopener noreferrer" class="glow-text-subtle">Naton Lab Limited</a></p>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -449,8 +451,38 @@ function resetForm() {
   render();
 }
 
-function printInvoice() {
-  window.print();
+async function printInvoice() {
+  const btn = document.querySelector('.btn-primary');
+  const orig = btn.textContent;
+  btn.textContent = 'Generating...';
+  btn.disabled = true;
+
+  try {
+    const el = $('invoice');
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = pdf.internal.pageSize.getHeight();
+    const imgW = pdfW;
+    const imgH = (canvas.height * pdfW) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, imgW, Math.min(imgH, pdfH));
+
+    const num = $('f-number').value || 'draft';
+    pdf.save(`invoice-${num}.pdf`);
+  } catch (err) {
+    console.error(err);
+    window.print();
+  } finally {
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
 }
 
 document.querySelectorAll('.form-panel input, .form-panel textarea').forEach(el => {
