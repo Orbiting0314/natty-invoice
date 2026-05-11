@@ -292,16 +292,18 @@
       .layout { grid-template-columns: 1fr; height: auto; }
       .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
       .preview-panel {
-        padding: 1rem;
+        padding: 0.75rem;
         display: flex;
         justify-content: center;
+        align-items: flex-start;
+      }
+      .preview-scaler {
+        transform-origin: top left;
       }
       .invoice-page {
-        width: 210mm;
+        width: 794px;
+        min-width: 794px;
         min-height: auto;
-        transform-origin: top center;
-        transform: scale(var(--mobile-scale, 0.45));
-        margin-bottom: calc((297mm * (1 - var(--mobile-scale, 0.45))) * -1);
       }
     }
   </style>
@@ -351,9 +353,11 @@
     </div>
   </aside>
 
-  <main class="preview-panel">
-    <div class="invoice-page" id="invoice">
-      <!-- filled by JS -->
+  <main class="preview-panel" id="preview-panel">
+    <div class="preview-scaler" id="preview-scaler">
+      <div class="invoice-page" id="invoice">
+        <!-- filled by JS -->
+      </div>
     </div>
   </main>
 </div>
@@ -491,16 +495,28 @@ document.querySelectorAll('.form-panel input, .form-panel textarea').forEach(el 
 render();
 
 function updateMobileScale() {
+  const scaler = $('preview-scaler');
+  const invoice = $('invoice');
+  const panel = $('preview-panel');
+  if (!scaler || !invoice || !panel) return;
+
   if (window.innerWidth <= 900) {
-    const pad = 32;
-    const scale = Math.min(1, (window.innerWidth - pad) / (210 * 3.7795));
-    document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(3));
+    const availW = panel.clientWidth - 24;
+    const invW = 794;
+    const scale = Math.min(1, availW / invW);
+    scaler.style.transform = `scale(${scale})`;
+    scaler.style.width = invW + 'px';
+    const invH = invoice.offsetHeight;
+    panel.style.height = (invH * scale + 24) + 'px';
   } else {
-    document.documentElement.style.removeProperty('--mobile-scale');
+    scaler.style.transform = '';
+    scaler.style.width = '';
+    panel.style.height = '';
   }
 }
 updateMobileScale();
 window.addEventListener('resize', updateMobileScale);
+new MutationObserver(updateMobileScale).observe($('invoice'), { childList: true, subtree: true });
 </script>
 </body>
 </html>
