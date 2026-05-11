@@ -268,17 +268,7 @@
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; height: auto; }
       .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
-      .preview-panel {
-        padding: 8px;
-        display: flex;
-        justify-content: center;
-        overflow: visible;
-      }
-      .invoice-page {
-        transform: scale(var(--mobile-scale));
-        transform-origin: top center;
-        margin-bottom: calc((var(--mobile-scale) - 1) * var(--inv-h, 1000px));
-      }
+      .preview-panel { display: none; }
     }
   </style>
 </head>
