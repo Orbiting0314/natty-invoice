@@ -136,10 +136,6 @@
       overflow: auto;
     }
 
-    .preview-scaler {
-      flex-shrink: 0;
-    }
-
     /* ── Invoice page ── */
     .invoice-page {
       background: #fff;
@@ -257,8 +253,8 @@
       .app-header, .form-panel, .app-footer { display: none !important; }
       .layout { display: block; height: auto; }
       .preview-panel { background: #fff; padding: 0; display: block; }
-      .preview-scaler { transform: none !important; }
       .invoice-page {
+        zoom: 1 !important;
         box-shadow: none;
         border-radius: 0;
         width: auto;
@@ -272,13 +268,12 @@
       .layout { grid-template-columns: 1fr; height: auto; }
       .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
       .preview-panel {
-        padding: 0;
-        overflow: visible;
+        padding: 8px;
+        overflow: hidden;
         display: block;
       }
-      .preview-wrap {
-        width: 100%;
-        overflow: hidden;
+      .invoice-page {
+        zoom: calc((100vw - 16px) / 794);
       }
     }
   </style>
@@ -329,11 +324,7 @@
   </aside>
 
   <main class="preview-panel" id="preview-panel">
-    <div class="preview-wrap" id="preview-wrap">
-      <div class="preview-scaler" id="preview-scaler">
-        <div class="invoice-page" id="invoice"></div>
-      </div>
-    </div>
+    <div class="invoice-page" id="invoice"></div>
   </main>
 </div>
 
@@ -418,7 +409,6 @@ function render() {
       <div class="tagline">實戰導向的英文教學，以最少時間，幫你打好最強基礎</div>
     </footer>
   `;
-  requestAnimationFrame(updateScale);
 }
 
 function resetForm() {
@@ -442,10 +432,10 @@ async function printInvoice() {
     const el = $('invoice');
     const num = $('f-number').value || 'draft';
 
-    // temporarily remove min-height / scale for clean capture
-    const scaler = $('preview-scaler');
-    const prevTransform = scaler.style.transform;
-    scaler.style.transform = 'none';
+    const prevZoom = el.style.zoom;
+    const prevShadow = el.style.boxShadow;
+    const prevRadius = el.style.borderRadius;
+    el.style.zoom = '1';
     el.style.boxShadow = 'none';
     el.style.borderRadius = '0';
 
@@ -458,9 +448,9 @@ async function printInvoice() {
       pagebreak:    { mode: 'avoid-all' },
     }).from(el).save();
 
-    scaler.style.transform = prevTransform;
-    el.style.boxShadow = '';
-    el.style.borderRadius = '';
+    el.style.zoom = prevZoom;
+    el.style.boxShadow = prevShadow;
+    el.style.borderRadius = prevRadius;
   } catch (err) {
     console.error('PDF generation failed:', err);
     alert('PDF generation failed: ' + err.message);
@@ -470,35 +460,11 @@ async function printInvoice() {
   }
 }
 
-function updateScale() {
-  const scaler = $('preview-scaler');
-  const wrap = $('preview-wrap');
-  const invoice = $('invoice');
-  if (!scaler || !wrap || !invoice) return;
-
-  const isMobile = window.innerWidth <= 900;
-  const availW = isMobile ? window.innerWidth : wrap.clientWidth - 48;
-
-  if (availW < INV_W) {
-    const scale = availW / INV_W;
-    scaler.style.transform = `scale(${scale})`;
-    scaler.style.transformOrigin = 'top left';
-    scaler.style.width = INV_W + 'px';
-    wrap.style.height = (invoice.offsetHeight * scale) + 'px';
-  } else {
-    scaler.style.transform = '';
-    scaler.style.transformOrigin = '';
-    scaler.style.width = '';
-    wrap.style.height = '';
-  }
-}
-
 document.querySelectorAll('.form-panel input, .form-panel textarea').forEach(el => {
   el.addEventListener('input', render);
 });
 
 render();
-window.addEventListener('resize', updateScale);
 </script>
 </body>
 </html>
