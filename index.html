@@ -272,7 +272,12 @@
       .layout { grid-template-columns: 1fr; height: auto; }
       .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
       .preview-panel {
-        padding: 12px;
+        padding: 0;
+        overflow: visible;
+        display: block;
+      }
+      .preview-wrap {
+        width: 100%;
         overflow: hidden;
       }
     }
@@ -324,8 +329,10 @@
   </aside>
 
   <main class="preview-panel" id="preview-panel">
-    <div class="preview-scaler" id="preview-scaler">
-      <div class="invoice-page" id="invoice"></div>
+    <div class="preview-wrap" id="preview-wrap">
+      <div class="preview-scaler" id="preview-scaler">
+        <div class="invoice-page" id="invoice"></div>
+      </div>
     </div>
   </main>
 </div>
@@ -465,24 +472,24 @@ async function printInvoice() {
 
 function updateScale() {
   const scaler = $('preview-scaler');
-  const panel = $('preview-panel');
+  const wrap = $('preview-wrap');
   const invoice = $('invoice');
-  if (!scaler || !panel || !invoice) return;
+  if (!scaler || !wrap || !invoice) return;
 
-  const availW = panel.clientWidth - 48;
+  const isMobile = window.innerWidth <= 900;
+  const availW = isMobile ? window.innerWidth : wrap.clientWidth - 48;
+
   if (availW < INV_W) {
     const scale = availW / INV_W;
     scaler.style.transform = `scale(${scale})`;
     scaler.style.transformOrigin = 'top left';
     scaler.style.width = INV_W + 'px';
-    scaler.style.height = (invoice.offsetHeight) + 'px';
-    panel.style.height = (invoice.offsetHeight * scale + 24) + 'px';
+    wrap.style.height = (invoice.offsetHeight * scale) + 'px';
   } else {
     scaler.style.transform = '';
     scaler.style.transformOrigin = '';
     scaler.style.width = '';
-    scaler.style.height = '';
-    panel.style.height = '';
+    wrap.style.height = '';
   }
 }
 
